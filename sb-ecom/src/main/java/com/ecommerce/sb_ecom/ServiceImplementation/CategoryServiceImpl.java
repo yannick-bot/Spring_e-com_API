@@ -26,9 +26,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public String  createCategory(Category category) {
-        if(category.getCategoryName() == null || category.getCategoryName().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some properties are missing");
-        }
         categoryRepository.save(category);
         return "category added successsfully";
     }
