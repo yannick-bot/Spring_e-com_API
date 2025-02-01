@@ -1,5 +1,7 @@
 package com.ecommerce.sb_ecom.Controller;
 
+import com.ecommerce.sb_ecom.DTOModels.CategoryDTO;
+import com.ecommerce.sb_ecom.DTOModels.CategoryResponse;
 import com.ecommerce.sb_ecom.Model.Category;
 import com.ecommerce.sb_ecom.Service.CategoryService;
 import jakarta.validation.Valid;
@@ -21,38 +23,25 @@ public class CategoryController {
 
 
     @GetMapping("/public/categories")
-    public ResponseEntity<List<Category>> getAllCategories() {
+    public ResponseEntity<CategoryResponse> getAllCategories() {
         return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
     }
 
     @PostMapping("/public/categories")
-    public ResponseEntity<String> createCategory(@Valid @RequestBody Category category) {
-          String   status = categoryService.createCategory(category);
-        return new ResponseEntity<>(status, HttpStatus.CREATED);
+    public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
+        CategoryDTO  created = categoryService.createCategory(categoryDTO);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PutMapping("/public/categories/{categoryId}")
-    public ResponseEntity<String> updateCategory(@PathVariable Long categoryId, @RequestBody Category category) {
-        try {
-            String status = categoryService.updateCategory(categoryId, category);
-            return new ResponseEntity<String>(status, HttpStatus.CREATED);
-        } catch (ResponseStatusException e) {
-            return new ResponseEntity<String>(e.getReason(), e.getStatusCode());
-        }
+    public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Long categoryId, @Valid @RequestBody CategoryDTO category) {
+            CategoryDTO categoryDTO = categoryService.updateCategory(categoryId, category);
+            return new ResponseEntity<>(categoryDTO, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/admin/categories/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
-        try {
-            String status = categoryService.deleteCategory(categoryId);
-            return new ResponseEntity<>(status, HttpStatus.OK);
-            /*
-           also valid:
-            return ResponseEntity.ok(status);
-            return  ResponseEntity.status(HttpStatus.OK).body(status);
-           */
-        } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
-        }
+    public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId) {
+            CategoryDTO deleted = categoryService.deleteCategory(categoryId);
+            return new ResponseEntity<>(deleted, HttpStatus.OK);
     }
 }

@@ -24,4 +24,16 @@ public class ExceptionHandling {
         });
         return new ResponseEntity<Map<String, String>>(response, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(RessourceNotFoundException.class)
+    public ResponseEntity<String> ressourceNotFoundException(RessourceNotFoundException e) {
+        String message = e.getMessage();
+        return new ResponseEntity<String>(message, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<String> createCategoryException(ApiException e) {
+        String message = e.getMessage();
+        return new ResponseEntity<String>(message, HttpStatus.BAD_REQUEST);
+    }
 }
