@@ -1,4 +1,4 @@
-package com.ecommerce.sb_ecom.DTOModels;
+package com.ecommerce.sb_ecom.DTOModels.Category;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

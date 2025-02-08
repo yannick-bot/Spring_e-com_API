@@ -1,19 +1,15 @@
-package com.ecommerce.sb_ecom.Model;
+package com.ecommerce.sb_ecom.DTOModels.Product;
 
-import jakarta.persistence.*;
+import com.ecommerce.sb_ecom.Model.Category;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class Product {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@NoArgsConstructor
+public class ProductDTO {
     private Long productId;
     @NotBlank
     private String description;
@@ -25,8 +21,5 @@ public class Product {
     private Integer quantity;
     private double specialPrice;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "categoryID")
     private Category category;
-
 }

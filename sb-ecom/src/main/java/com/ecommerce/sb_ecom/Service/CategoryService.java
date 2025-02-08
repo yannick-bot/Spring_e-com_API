@@ -1,7 +1,7 @@
 package com.ecommerce.sb_ecom.Service;
 
-import com.ecommerce.sb_ecom.DTOModels.CategoryDTO;
-import com.ecommerce.sb_ecom.DTOModels.CategoryResponse;
+import com.ecommerce.sb_ecom.DTOModels.Category.CategoryDTO;
+import com.ecommerce.sb_ecom.DTOModels.Category.CategoryResponse;
 
 
 public interface CategoryService {

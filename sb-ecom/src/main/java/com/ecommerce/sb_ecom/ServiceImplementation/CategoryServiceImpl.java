@@ -1,7 +1,7 @@
 package com.ecommerce.sb_ecom.ServiceImplementation;
 
-import com.ecommerce.sb_ecom.DTOModels.CategoryDTO;
-import com.ecommerce.sb_ecom.DTOModels.CategoryResponse;
+import com.ecommerce.sb_ecom.DTOModels.Category.CategoryDTO;
+import com.ecommerce.sb_ecom.DTOModels.Category.CategoryResponse;
 import com.ecommerce.sb_ecom.Exceptions.ApiException;
 import com.ecommerce.sb_ecom.Exceptions.RessourceNotFoundException;
 import com.ecommerce.sb_ecom.Model.Category;

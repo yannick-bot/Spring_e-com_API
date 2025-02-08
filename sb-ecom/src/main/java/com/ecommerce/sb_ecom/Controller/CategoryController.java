@@ -1,8 +1,8 @@
 package com.ecommerce.sb_ecom.Controller;
 
 import com.ecommerce.sb_ecom.Config.AppConstants;
-import com.ecommerce.sb_ecom.DTOModels.CategoryDTO;
-import com.ecommerce.sb_ecom.DTOModels.CategoryResponse;
+import com.ecommerce.sb_ecom.DTOModels.Category.CategoryDTO;
+import com.ecommerce.sb_ecom.DTOModels.Category.CategoryResponse;
 import com.ecommerce.sb_ecom.Service.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
