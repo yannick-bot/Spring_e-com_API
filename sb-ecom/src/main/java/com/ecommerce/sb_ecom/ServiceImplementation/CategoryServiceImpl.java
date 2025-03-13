@@ -105,4 +105,12 @@ public class CategoryServiceImpl implements CategoryService {
         return modelMapper.map(category, CategoryDTO.class);
     }
 
+    @Override
+    public CategoryDTO getOneCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()-> new RessourceNotFoundException("category", "categoryId", categoryId));
+
+        return  modelMapper.map(category, CategoryDTO.class);
+    }
+
 }
