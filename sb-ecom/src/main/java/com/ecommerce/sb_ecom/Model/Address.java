@@ -4,26 +4,23 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-public class User {
+public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
-    @Size(min = 3, max = 20)
-    private String username;
-    @Email
-    private String email;
-    @Size(min = 8, max = 120, message = "password must be at least 8 characters length")
-    private String password;
-
+    private Long addressId;
+    private String building_name;
+    private String city;
+    private String country;
+    private String pincode;
+    private String state;
+    private String street;
 
 }
