@@ -1,4 +1,4 @@
-package com.ecommerce.sb_ecom.Security.Jwt;
+package com.ecommerce.sb_ecom.Security.AuthModels;
 
 public class LoginRequest {
 
