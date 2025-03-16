@@ -64,4 +64,9 @@ public class User {
     )
     private List<Address> addressList = new ArrayList<>();
 
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 }
