@@ -5,6 +5,7 @@ import com.ecommerce.sb_ecom.Model.Role;
 import com.ecommerce.sb_ecom.Model.User;
 import com.ecommerce.sb_ecom.Repositories.RoleRepository;
 import com.ecommerce.sb_ecom.Repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -118,63 +119,61 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    @Transactional // Assure que les opérations sont exécutées dans une transaction
     public CommandLineRunner initData(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            // Retrieve or create roles
+            // Récupérer ou créer les rôles
             Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                     .orElseGet(() -> {
-                        Role newUserRole = new Role(AppRole.ROLE_USER);
-                        return roleRepository.save(newUserRole);
+                        Role newRole = new Role(AppRole.ROLE_USER);
+                        return roleRepository.save(newRole); // Persiste le rôle
                     });
 
             Role sellerRole = roleRepository.findByRoleName(AppRole.ROLE_SELLER)
                     .orElseGet(() -> {
-                        Role newSellerRole = new Role(AppRole.ROLE_SELLER);
-                        return roleRepository.save(newSellerRole);
+                        Role newRole = new Role(AppRole.ROLE_SELLER);
+                        return roleRepository.save(newRole); // Persiste le rôle
                     });
 
             Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
                     .orElseGet(() -> {
-                        Role newAdminRole = new Role(AppRole.ROLE_ADMIN);
-                        return roleRepository.save(newAdminRole);
+                        Role newRole = new Role(AppRole.ROLE_ADMIN);
+                        return roleRepository.save(newRole); // Persiste le rôle
                     });
 
-            Set<Role> userRoles = Set.of(userRole);
-            Set<Role> sellerRoles = Set.of(sellerRole);
-            Set<Role> adminRoles = Set.of(userRole, sellerRole, adminRole);
+            // Créer les utilisateurs s'ils n'existent pas déjà
+            userRepository.findByUsername("user1").ifPresentOrElse(
+                    user -> user.addRole(userRole), // Met à jour les rôles si l'utilisateur existe
+                    () -> { // Crée l'utilisateur s'il n'existe pas
+                        User user1 = new User("user1", "user1@example.com", passwordEncoder.encode("password1"));
+                        user1.addRole(userRole); // Associe le rôle
+                        userRepository.save(user1); // Sauvegarde l'utilisateur
+                    }
+            );
 
+            userRepository.findByUsername("seller1").ifPresentOrElse(
+                    seller -> seller.addRole(sellerRole),
+                    () -> {
+                        User seller1 = new User("seller1", "seller1@example.com", passwordEncoder.encode("password2"));
+                        seller1.addRole(sellerRole);
+                        userRepository.save(seller1);
+                    }
+            );
 
-            // Create users if not already present
-            if (!userRepository.existsByUsername("user1")) {
-                User user1 = new User("user1", "user1@example.com", passwordEncoder.encode("password1"));
-                userRepository.save(user1);
-            }
-
-            if (!userRepository.existsByUsername("seller1")) {
-                User seller1 = new User("seller1", "seller1@example.com", passwordEncoder.encode("password2"));
-                userRepository.save(seller1);
-            }
-
-            if (!userRepository.existsByUsername("admin")) {
-                User admin = new User("admin", "admin@example.com", passwordEncoder.encode("adminPass"));
-                userRepository.save(admin);
-            }
-
-            // Update roles for existing users
-            userRepository.findByUsername("user1").ifPresent(user -> {
-                user.setRoles(userRoles);
-                userRepository.save(user);
-            });
-
-            userRepository.findByUsername("seller1").ifPresent(seller -> {
-                seller.setRoles(sellerRoles);
-                userRepository.save(seller);
-            });
-
-            userRepository.findByUsername("admin").ifPresent(admin -> {
-                admin.setRoles(adminRoles);
-                userRepository.save(admin);
-            });
+            userRepository.findByUsername("admin").ifPresentOrElse(
+                    admin -> {
+                        admin.addRole(userRole);
+                        admin.addRole(sellerRole);
+                        admin.addRole(adminRole);
+                    },
+                    () -> {
+                        User admin = new User("admin", "admin@example.com", passwordEncoder.encode("adminPass"));
+                        admin.addRole(userRole);
+                        admin.addRole(sellerRole);
+                        admin.addRole(adminRole);
+                        userRepository.save(admin);
+                    }
+            );
         };
     }
 }

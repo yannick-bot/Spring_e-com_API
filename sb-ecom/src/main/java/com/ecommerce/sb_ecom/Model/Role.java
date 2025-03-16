@@ -1,11 +1,14 @@
 package com.ecommerce.sb_ecom.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -25,9 +28,21 @@ public class Role {
     private AppRole roleName;
 
     @ManyToMany(mappedBy = "roles")
-    private Set<User> users;
+    @JsonIgnore
+    private Set<User> users = new HashSet<>();
 
     public Role(AppRole roleName) {
         this.roleName = roleName;
+    }
+
+    // Méthode utilitaire pour gérer la relation bidirectionnelle
+    public void addUser(User user) {
+        this.users.add(user);
+        user.getRoles().add(this);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(roleId);
     }
 }
