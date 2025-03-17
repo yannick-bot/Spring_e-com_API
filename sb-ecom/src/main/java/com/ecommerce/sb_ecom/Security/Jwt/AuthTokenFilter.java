@@ -35,8 +35,8 @@ public class AuthTokenFilter extends OncePerRequestFilter { // Étend OncePerReq
         // Log l'URI de la requête pour le débogage
         logger.debug("AuthTokenFilter called for URI: {}", request.getRequestURI());
         try {
-            // Tente d'extraire et de valider le JWT de la requête
-            String jwt = parseJwt(request);
+            // Tente d'extraire et de valider le JWT du cookie de la requête
+            String jwt = parseJwtCookie(request);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 // Si le JWT est valide, extrait le nom d'utilisateur (username) du JWT
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
@@ -71,6 +71,15 @@ public class AuthTokenFilter extends OncePerRequestFilter { // Étend OncePerReq
     private String parseJwt(HttpServletRequest request) {
         // Utilise JwtUtils pour extraire le JWT de l'en-tête "Authorization"
         String jwt = jwtUtils.getJwtFromHeader(request);
+        // Log le JWT extrait pour le débogage
+        logger.debug("AuthTokenFilter.java: {}", jwt);
+        return jwt;
+    }
+
+    // Méthode pour extraire le JWT du cookie
+    private String parseJwtCookie(HttpServletRequest request) {
+        // Utilise JwtUtils pour extraire le JWT de l'en-tête "Authorization"
+        String jwt = jwtUtils.getJwtFromCookies(request);
         // Log le JWT extrait pour le débogage
         logger.debug("AuthTokenFilter.java: {}", jwt);
         return jwt;

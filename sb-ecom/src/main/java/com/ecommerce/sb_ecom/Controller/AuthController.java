@@ -7,12 +7,15 @@ import com.ecommerce.sb_ecom.Repositories.RoleRepository;
 import com.ecommerce.sb_ecom.Repositories.UserRepository;
 import com.ecommerce.sb_ecom.Security.AuthModels.MessageResponse;
 import com.ecommerce.sb_ecom.Security.AuthModels.SignupRequest;
+import com.ecommerce.sb_ecom.Security.CustomImpl.UserDetailsImpl;
 import com.ecommerce.sb_ecom.Security.Jwt.JwtUtils;
 import com.ecommerce.sb_ecom.Security.AuthModels.LoginRequest;
 import com.ecommerce.sb_ecom.Security.AuthModels.LoginResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -71,11 +74,17 @@ public class AuthController {
 
         // On récupère les détails de l'utilisateur authentifié à partir de l'objet Authentication.
         // UserDetails est une interface Spring Security qui contient les informations de l'utilisateur.
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        // On génère un token JWT (JSON Web Token) à partir du nom d'utilisateur de l'utilisateur.
-        // Ce token sera utilisé pour authentifier les requêtes futures de l'utilisateur.
-        String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
+        /*
+         On génère un token JWT (JSON Web Token) à partir du nom d'utilisateur de l'utilisateur.
+         Ce token sera utilisé pour authentifier les requêtes futures de l'utilisateur:
+
+         String jwtToken = jwtUtils.generateTokenFromUsername(userDetails.getUsername());
+        */
+
+
+        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
         // On récupère les rôles (ou autorités) de l'utilisateur et on les transforme en une liste de chaînes.
         // Les rôles sont généralement utilisés pour gérer les permissions dans l'application.
@@ -86,11 +95,12 @@ public class AuthController {
         // On crée un objet LoginResponse qui contient :
         // - Le nom d'utilisateur
         // - Les rôles de l'utilisateur
-        // - Le token JWT généré
-        LoginResponse response = new LoginResponse(userDetails.getUsername(), roles, jwtToken);
+        LoginResponse response = new LoginResponse(userDetails.getUsername(), roles);
 
         // On renvoie une réponse HTTP 200 (OK) avec l'objet LoginResponse dans le corps de la réponse.
-        return ResponseEntity.ok(response);
+        //return ResponseEntity.ok(response);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .body(response);
     }
 
     @PostMapping("/signup")

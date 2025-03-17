@@ -1,17 +1,21 @@
 package com.ecommerce.sb_ecom.Security.Jwt;
 
+import com.ecommerce.sb_ecom.Security.CustomImpl.UserDetailsImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -30,6 +34,9 @@ public class JwtUtils {
     @Value("${spring.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    @Value("${spring.sb-ecom.jwtCookieName}")
+    private String jwtCookie;
+
     // Méthode pour extraire le JWT de l'en-tête "Authorization" de la requête HTTP
     public String getJwtFromHeader(HttpServletRequest request) {
         // Récupère la valeur de l'en-tête "Authorization"
@@ -46,9 +53,8 @@ public class JwtUtils {
     }
 
     // Méthode pour générer un JWT à partir du nom d'utilisateur (username)
-    public String generateTokenFromUsername(UserDetails userDetails) {
-        // Récupère le nom d'utilisateur à partir des détails de l'utilisateur
-        String username = userDetails.getUsername();
+    public String generateTokenFromUsername(String username) {
+
         // Construit le JWT avec les informations suivantes :
         return Jwts.builder()
                 .subject(username) // Le sujet du token (ici, le nom d'utilisateur)
@@ -96,4 +102,28 @@ public class JwtUtils {
         // Si une exception est levée, retourne false
         return false;
     }
+
+
+    /*
+        JWT COOKIE
+    */
+
+    public String getJwtFromCookies(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, jwtCookie);
+        if (cookie != null) {
+            System.out.println("COOKIE: " + cookie.getValue());
+            return cookie.getValue();
+        } else {
+            return null;
+        }
+    }
+
+    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
+        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+        ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt).path("/api").maxAge(24 * 60 * 60)
+                .httpOnly(false)
+                .build();
+        return cookie;
+    }
+
 }

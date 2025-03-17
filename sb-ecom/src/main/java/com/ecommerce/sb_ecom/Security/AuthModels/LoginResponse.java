@@ -8,8 +8,15 @@ public class LoginResponse {
     private String username;
     private List<String> roles;
 
+    // constucteur pour bearer token
     public LoginResponse(String username, List<String> roles, String jwtToken) {
         this.jwtToken = jwtToken;
+        this.username = username;
+        this.roles = roles;
+    }
+
+    // constructeur pour jwt cookie
+    public LoginResponse(String username, List<String> roles) {
         this.username = username;
         this.roles = roles;
     }
