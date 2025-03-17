@@ -126,4 +126,8 @@ public class JwtUtils {
         return cookie;
     }
 
+    public ResponseCookie generateCleanCookie() {
+        return ResponseCookie.from(jwtCookie, null).path("/api")
+                .build();
+    }
 }
