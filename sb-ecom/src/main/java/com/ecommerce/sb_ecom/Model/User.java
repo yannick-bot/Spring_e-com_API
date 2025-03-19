@@ -64,6 +64,9 @@ public class User {
     )
     private List<Address> addressList = new ArrayList<>();
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Cart cart;
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
