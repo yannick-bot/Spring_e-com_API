@@ -4,8 +4,12 @@ import com.ecommerce.sb_ecom.DTOModels.Product.ProductDTO;
 import com.ecommerce.sb_ecom.DTOModels.Product.ProductResponse;
 import com.ecommerce.sb_ecom.Exceptions.ApiException;
 import com.ecommerce.sb_ecom.Exceptions.RessourceNotFoundException;
+import com.ecommerce.sb_ecom.Model.Cart;
+import com.ecommerce.sb_ecom.Model.CartItem;
 import com.ecommerce.sb_ecom.Model.Category;
 import com.ecommerce.sb_ecom.Model.Product;
+import com.ecommerce.sb_ecom.Repositories.CartItemRepository;
+import com.ecommerce.sb_ecom.Repositories.CartRepository;
 import com.ecommerce.sb_ecom.Repositories.CategoryRepository;
 import com.ecommerce.sb_ecom.Repositories.ProductRepository;
 import com.ecommerce.sb_ecom.Service.FileService;
@@ -30,6 +34,10 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private CartItemRepository cartItemRepository;
+    @Autowired
+    private CartRepository cartRepository;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -158,7 +166,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
-        //mappage vers le DTO
+        //mappage vers le model
         Product product = modelMapper.map(productDTO, Product.class);
 
         //verifier que la catégorie existe
@@ -166,17 +174,31 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(()-> new RessourceNotFoundException("product", "id", productId));
 
         //mettre à jour
-        oldProduct.setProductName(product.getProductName());
-        oldProduct.setPrice(product.getPrice());
-        oldProduct.setDescription(product.getDescription());
-        oldProduct.setDiscount(product.getDiscount());
-        oldProduct.setQuantity(product.getQuantity());
+        product.setProductId(oldProduct.getProductId());
         // on calcule le specialPrice basé sur le discount
         double specialPrice = product.getPrice() - (product.getPrice() * product.getDiscount() / 100.0);
-        oldProduct.setSpecialPrice(specialPrice);
-        oldProduct.setCategory(product.getCategory());
+        product.setSpecialPrice(specialPrice);
 
-        Product newProduct = productRepository.save(oldProduct);
+        Product newProduct = productRepository.save(product);
+        // Récupérer tous les CartItems associés à ce produit pour les mettre à jour
+        List<CartItem> cartItems = cartItemRepository.findAllByProduct(newProduct);
+        if (!cartItems.isEmpty()) {
+            cartItems.forEach(cartItem -> {
+                double newPrice = (newProduct.getSpecialPrice() > 0) ? newProduct.getSpecialPrice() : newProduct.getPrice();
+
+                // Mettre à jour le prix total du panier
+                Cart cart = cartItem.getCart();
+                cart.setTotalPrice(cart.getTotalPrice() - cartItem.getProduct_price() + newPrice);
+                cartRepository.save(cart);
+
+                // Mettre à jour le prix du produit et la réduction dans le CartItem
+                cartItem.setProduct_price(newPrice);
+                cartItem.setDiscount(newProduct.getDiscount());
+
+                // Sauvegarder le CartItem mis à jour
+                cartItemRepository.save(cartItem);
+            });
+        }
 
         return modelMapper.map(newProduct, ProductDTO.class);
     }

@@ -13,7 +13,7 @@ public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartItemId;
-    private double discount;
+    private Double discount;
     private Double product_price;
     private Integer quantity;
 
@@ -21,7 +21,17 @@ public class CartItem {
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
+    public void setCart(Cart cart) {
+        this.cart = cart;
+        cart.getCartItems().add(this);
+    }
+
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+
+    public void setProduct(Product product) {
+        this.product = product;
+        product.getCartItemList().add(this);
+    }
 }

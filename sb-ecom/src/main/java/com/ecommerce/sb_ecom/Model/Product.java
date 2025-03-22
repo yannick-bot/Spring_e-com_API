@@ -30,7 +30,7 @@ public class Product {
     private Integer quantity;
     private double specialPrice;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "categoryID")
     private Category category;
 
