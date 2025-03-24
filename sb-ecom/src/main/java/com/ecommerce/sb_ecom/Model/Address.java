@@ -42,4 +42,9 @@ public class Address {
     @ManyToMany(mappedBy = "addressList")
     private List<User> users = new ArrayList<>();
 
+    public void setUsers(User user) {
+        this.users.add(user);
+        user.getAddressList().add(this);
+    }
+
 }
